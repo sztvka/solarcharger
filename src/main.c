@@ -5,6 +5,7 @@
 #include <string.h>
 #include <esp_log.h>
 #include <assert.h>
+#include "wifi.h"
 
 #define I2C_PORT 0
 
@@ -19,14 +20,13 @@
 
 
 
-const static char *TAG = "INA219_test";
 
 void ina_measure(void *addr)
 {
     ina219_t dev;
     memset(&dev, 0, sizeof(ina219_t));
     uint8_t* address;
-    address = (uint8_t *)addr;
+    address = (uint8_t *)&addr;
 
     assert(SHUNT_MOHM > 0);
     ESP_ERROR_CHECK(ina219_init_desc(&dev, *address, I2C_PORT, I2C_SDA, I2C_SCL));
@@ -62,6 +62,9 @@ void ina_measure(void *addr)
 
 void app_main()
 {
-    ESP_ERROR_CHECK(i2cdev_init());
-    xTaskCreate(ina_measure, "INA219_1", configMINIMAL_STACK_SIZE * 8, (void*)INA219_1_ADDR, 5, NULL);
+    //ESP_ERROR_CHECK(i2cdev_init());
+    wifi_init();
+    setINA219_1(0.1,0.1,0.1);
+    setINA219_2(0.2,0.2,0.2);
+    //xTaskCreate(ina_measure, "INA219_1", configMINIMAL_STACK_SIZE * 8, (void*)INA219_1_ADDR, 5, NULL);
 }

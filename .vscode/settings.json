@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "ina219.h": "c",
+        "freertos.h": "c"
+    }
+}
