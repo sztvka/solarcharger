@@ -34,7 +34,6 @@ static EventGroupHandle_t s_wifi_event_group;
 
 
 static const char *TAG = "SolarCharger";
-
 static int s_retry_num = 3;
 int counter = 0;
 
@@ -84,11 +83,22 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 void wifi_init_sta(void)
 {
     s_wifi_event_group = xEventGroupCreate();
-
     ESP_ERROR_CHECK(esp_netif_init());
 
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-    esp_netif_create_default_wifi_sta();
+    esp_netif_t *wifi_sta_conn = esp_netif_create_default_wifi_sta();
+    if(DHCP==false){
+        esp_netif_dhcpc_stop(wifi_sta_conn);
+
+        esp_netif_ip_info_t ip_info;
+
+        IP4_ADDR(&ip_info.ip, IP_1, IP_2, IP_3, IP_4);
+        IP4_ADDR(&ip_info.gw, GATEWAY_1, GATEWAY_2, GATEWAY_3, GATEWAY_4);
+        IP4_ADDR(&ip_info.netmask, MASK_1, MASK_2, MASK_3, MASK_4);
+
+        esp_netif_set_ip_info(wifi_sta_conn, &ip_info);       
+    }
+
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
