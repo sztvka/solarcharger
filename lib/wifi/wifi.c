@@ -22,7 +22,9 @@
 
 #include "wifi.h"
 
-#include <spiffs.h>
+//#include <spiffs.h>
+
+#include "esp_spiffs.h"
 
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
@@ -58,6 +60,32 @@ void setINA219_2(float voltage, float current, float wattage){
     ina2.current = current;
     ina2.wattage = wattage;
 };
+
+
+void spiffs_init(){
+    esp_vfs_spiffs_conf_t conf = {
+      .base_path = "/spiffs",
+      .partition_label = NULL,
+      .max_files = 5,
+      .format_if_mount_failed = false
+    };
+
+    // Use settings defined above to initialize and mount SPIFFS filesystem.
+    // Note: esp_vfs_spiffs_register is an all-in-one convenience function.
+    esp_err_t ret = esp_vfs_spiffs_register(&conf);
+
+    if (ret != ESP_OK) {
+        if (ret == ESP_FAIL) {
+            ESP_LOGE(TAG, "Failed to mount or format filesystem");
+        } else if (ret == ESP_ERR_NOT_FOUND) {
+            ESP_LOGE(TAG, "Failed to find SPIFFS partition");
+        } else {
+            ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
+        }
+        return;
+    }
+
+}
 
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
@@ -157,29 +185,7 @@ void wifi_init_sta(void)
     }
 }
 
-esp_err_t html_handler(httpd_req_t *req){
-    httpd_resp_set_type(req, "text/html");
-    char *response = return_html(PAGE_BUFF);
-    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
-    free(response);
-    return ESP_OK;
-}
 
-esp_err_t js_handler(httpd_req_t *req){
-    httpd_resp_set_type(req, "text/javascript");
-    char *response = return_js(PAGE_BUFF);
-    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
-    free(response);
-    return ESP_OK;
-}
-
-esp_err_t css_handler(httpd_req_t *req){
-    httpd_resp_set_type(req, "text/css");
-    char *response = return_css(PAGE_BUFF);
-    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
-    free(response);
-    return ESP_OK;
-}
 
 esp_err_t json_handler(httpd_req_t *req){
     cJSON *resp;
@@ -206,6 +212,122 @@ esp_err_t json_handler(httpd_req_t *req){
     httpd_resp_set_type(req, "applicaton/json");
     httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
+}
+
+
+
+esp_err_t html_handler(httpd_req_t *req){
+    FILE *file = fopen("/spiffs/index.html", "r");
+    if(file==NULL){
+         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get index.html");
+         return ESP_FAIL;
+    }
+    else{
+        httpd_resp_set_type(req, "text/html");
+        char *chunk = malloc(PAGE_BUFF);
+        size_t chunksize;
+        do{
+            chunksize = fread(chunk, 1, PAGE_BUFF, file);
+
+        if (chunksize > 0) {
+                /* Send the buffer contents as HTTP response chunk */
+                if (httpd_resp_send_chunk(req, chunk, chunksize) != ESP_OK) {
+                    fclose(file);
+                    ESP_LOGE(TAG, "Request failed!");
+                    /* Abort sending file */
+                    httpd_resp_sendstr_chunk(req, NULL);
+                    /* Respond with 500 Internal Server Error */
+                    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get index.html");
+                return ESP_FAIL;
+            }
+            }
+
+        
+        }while(chunksize!=0);
+
+        
+        fclose(file);
+        httpd_resp_send_chunk(req, NULL, 0);
+        free(chunk);
+        return ESP_OK;
+    }
+
+}
+
+esp_err_t js_handler(httpd_req_t *req){
+    FILE *file = fopen("/spiffs/main.js", "r");
+    if(file==NULL){
+         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get index.html");
+         return ESP_FAIL;
+    }
+    else{
+        httpd_resp_set_type(req, "text/js");
+        char *chunk = malloc(PAGE_BUFF);
+        size_t chunksize;
+        do{
+            chunksize = fread(chunk, 1, PAGE_BUFF, file);
+
+        if (chunksize > 0) {
+                /* Send the buffer contents as HTTP response chunk */
+                if (httpd_resp_send_chunk(req, chunk, chunksize) != ESP_OK) {
+                    fclose(file);
+                    ESP_LOGE(TAG, "Request failed!");
+                    /* Abort sending file */
+                    httpd_resp_sendstr_chunk(req, NULL);
+                    /* Respond with 500 Internal Server Error */
+                    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get main.js");
+                return ESP_FAIL;
+            }
+            }
+
+        
+        }while(chunksize!=0);
+
+        
+        fclose(file);
+        httpd_resp_send_chunk(req, NULL, 0);
+        free(chunk);
+        return ESP_OK;
+    }
+
+}
+
+esp_err_t css_handler(httpd_req_t *req){
+    FILE *file = fopen("/spiffs/styles.css", "r");
+    if(file==NULL){
+         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get styles.css");
+         return ESP_FAIL;
+    }
+    else{
+        httpd_resp_set_type(req, "text/css");
+        char *chunk = malloc(PAGE_BUFF);
+        size_t chunksize;
+        do{
+            chunksize = fread(chunk, 1, PAGE_BUFF, file);
+
+        if (chunksize > 0) {
+                /* Send the buffer contents as HTTP response chunk */
+                if (httpd_resp_send_chunk(req, chunk, chunksize) != ESP_OK) {
+                    fclose(file);
+                    ESP_LOGE(TAG, "Request failed!");
+                    /* Abort sending file */
+                    httpd_resp_sendstr_chunk(req, NULL);
+                    /* Respond with 500 Internal Server Error */
+                    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get styles.css");
+                return ESP_FAIL;
+            }
+            }
+
+        
+        }while(chunksize!=0);
+
+        
+        fclose(file);
+        httpd_resp_send_chunk(req, NULL, 0);
+        free(chunk);
+        return ESP_OK;
+    }
+
 }
 
 void http_start(void){
@@ -269,6 +391,40 @@ void wifi_init(void)
     wifi_init_sta();
     http_start();
     spiffs_init();
-    spiffs_test();
     //xTaskCreate(cntup,"cntTask",configMINIMAL_STACK_SIZE*8, NULL, 5, NULL);
 }
+
+
+
+
+/*
+LEGACY HANDLERS 
+
+
+esp_err_t html_handler(httpd_req_t *req){
+    httpd_resp_set_type(req, "text/html");
+    char *response = return_html(PAGE_BUFF);
+    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
+    free(response);
+    return ESP_OK;
+}
+
+esp_err_t js_handler(httpd_req_t *req){
+    httpd_resp_set_type(req, "text/javascript");
+    char *response = return_js(PAGE_BUFF);
+    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
+    free(response);
+    return ESP_OK;
+}
+
+esp_err_t css_handler(httpd_req_t *req){
+    httpd_resp_set_type(req, "text/css");
+    char *response = return_css(PAGE_BUFF);
+    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
+    free(response);
+    return ESP_OK;
+}
+
+
+
+*/

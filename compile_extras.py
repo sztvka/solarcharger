@@ -1,3 +1,5 @@
+#Script used for setting config and minifying web files before loading them onto spiffs.
+
 import shutil
 import os
 
