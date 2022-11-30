@@ -17,7 +17,7 @@
 #include "lwip/sys.h"
 
 
-#include "config.h"
+#include <config.h>
 
 #include "wifi.h"
 

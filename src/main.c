@@ -5,8 +5,8 @@
 #include <string.h>
 #include <esp_log.h>
 #include <assert.h>
-#include "wifi.h"
-#include "spiffs.h"
+#include <wifi.h>
+#include <spiffs.h>
 
 #define I2C_PORT 0
 
