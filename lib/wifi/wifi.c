@@ -11,6 +11,7 @@
 #include <esp_http_server.h>
 
 
+
 #include "cJSON.h"
 
 #include "lwip/err.h"
@@ -21,7 +22,7 @@
 
 #include "wifi.h"
 
-
+#include <spiffs.h>
 
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
@@ -156,6 +157,29 @@ void wifi_init_sta(void)
     }
 }
 
+esp_err_t html_handler(httpd_req_t *req){
+    httpd_resp_set_type(req, "text/html");
+    char *response = return_html(PAGE_BUFF);
+    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
+    free(response);
+    return ESP_OK;
+}
+
+esp_err_t js_handler(httpd_req_t *req){
+    httpd_resp_set_type(req, "text/javascript");
+    char *response = return_js(PAGE_BUFF);
+    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
+    free(response);
+    return ESP_OK;
+}
+
+esp_err_t css_handler(httpd_req_t *req){
+    httpd_resp_set_type(req, "text/css");
+    char *response = return_css(PAGE_BUFF);
+    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
+    free(response);
+    return ESP_OK;
+}
 
 esp_err_t json_handler(httpd_req_t *req){
     cJSON *resp;
@@ -194,9 +218,32 @@ void http_start(void){
     .handler  = json_handler,
     .user_ctx = NULL
     };
+
+    httpd_uri_t html = {
+    .uri      = "/",
+    .method   = HTTP_GET,
+    .handler  = html_handler,
+    .user_ctx = NULL
+    };
+
+    httpd_uri_t js = {
+    .uri      = "/main.js",
+    .method   = HTTP_GET,
+    .handler  = js_handler,
+    .user_ctx = NULL
+    };
+
+    httpd_uri_t css = {
+    .uri      = "/styles.css",
+    .method   = HTTP_GET,
+    .handler  = css_handler,
+    .user_ctx = NULL
+    };
     if (httpd_start(&server, &config) == ESP_OK) {
         ESP_ERROR_CHECK(httpd_register_uri_handler(server, &data));
-
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &html));
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &js));
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &css));
     }
 
 }
@@ -221,5 +268,7 @@ void wifi_init(void)
     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
     wifi_init_sta();
     http_start();
+    spiffs_init();
+    spiffs_test();
     //xTaskCreate(cntup,"cntTask",configMINIMAL_STACK_SIZE*8, NULL, 5, NULL);
 }

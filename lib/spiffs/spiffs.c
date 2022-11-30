@@ -45,10 +45,44 @@ void spiffs_test(){
   else 
   {
     char line[256];
+    int i = 0;
     while(fgets(line, sizeof(line), file) != NULL)
     {
-      printf(line);
+      ESP_LOGI(TAG, "(%s)",line);
+      ESP_LOGI(TAG, "(%d)", i);
+      i++;
     }
     fclose(file);
+  }
+}
+
+char * return_html(int bufsize){
+  FILE *file = fopen("/spiffs/index.html", "r");
+  if(file==NULL) return "";
+  else {
+    char *buf = malloc(bufsize);
+    fgets(buf, bufsize, file);
+    fclose(file);
+    return buf;
+  }
+}
+char * return_js(int bufsize){
+  FILE *file = fopen("/spiffs/main.js", "r");
+  if(file==NULL) return "";
+  else {
+    char *buf = malloc(bufsize);
+    fgets(buf, bufsize, file);
+    fclose(file);
+    return buf;
+  }
+}
+char * return_css(int bufsize){
+  FILE *file = fopen("/spiffs/styles.css", "r");
+  if(file==NULL) return "";
+  else {
+    char *buf = malloc(bufsize);
+    fgets(buf, bufsize, file);
+    fclose(file);
+    return buf;
   }
 }

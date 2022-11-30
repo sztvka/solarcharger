@@ -5,6 +5,7 @@
         "spiffs.h": "c",
         "esp_log.h": "c",
         "wifi.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "esp_spiffs.h": "c"
     }
 }

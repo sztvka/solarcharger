@@ -27,10 +27,13 @@ for filename in os.listdir(minified_data):
 for filename in os.listdir(regular_data):
     file_path = os.path.join(regular_data, filename)
     minified_path = os.path.join(minified_data, filename)
-    if os.name == 'nt':
-        runstring = ".\minify " + file_path + " -o " + minified_path
-        os.system(runstring)
+    if "favicon" in filename:
+        shutil.copy2(file_path, minified_path)
     else:
-        runstring = "./minify " + file_path + " -o " + minified_path
-        os.system(runstring)
+        if os.name == 'nt':
+            runstring = ".\minify " + file_path + " -o " + minified_path
+            os.system(runstring)
+        else:
+            runstring = "./minify " + file_path + " -o " + minified_path
+            os.system(runstring)
 
