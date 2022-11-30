@@ -1,4 +1,4 @@
-// RENAME TO config.h
+// This file will be set as a config file while building. In order to reset the config, remove config.h at lib/config
 
 static const char *TAG = "SolarCharger";
 #define ESP_WIFI_SSID      ""
