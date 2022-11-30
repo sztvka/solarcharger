@@ -22,8 +22,6 @@
 
 #include "wifi.h"
 
-//#include <spiffs.h>
-
 #include "esp_spiffs.h"
 
 /* FreeRTOS event group to signal when we are connected*/
@@ -37,7 +35,7 @@ static EventGroupHandle_t s_wifi_event_group;
 
 
 
-static int s_retry_num = 3;
+static int s_retry_num = 0;
 int counter = 0;
 
 struct INA219 {
@@ -187,6 +185,8 @@ void wifi_init_sta(void)
 
 
 
+
+
 esp_err_t json_handler(httpd_req_t *req){
     cJSON *resp;
     resp = cJSON_CreateObject();
@@ -215,6 +215,41 @@ esp_err_t json_handler(httpd_req_t *req){
 }
 
 
+esp_err_t favicon_handler(httpd_req_t *req){
+    FILE *file = fopen("/spiffs/favicon.ico", "r");
+    if(file==NULL){
+         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get favicon.ico");
+         return ESP_FAIL;
+    }
+    else{
+        httpd_resp_set_type(req, "image/x-icon");
+        char *chunk = malloc(PAGE_BUFF);
+        size_t chunksize;
+        do{
+            chunksize = fread(chunk, 1, PAGE_BUFF, file);
+
+        if (chunksize > 0) {
+                if (httpd_resp_send_chunk(req, chunk, chunksize) != ESP_OK) {
+                    fclose(file);
+                    ESP_LOGE(TAG, "Request failed!");
+                    httpd_resp_sendstr_chunk(req, NULL);
+                    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get favicon.ico");
+                return ESP_FAIL;
+            }
+            }
+
+        
+        }while(chunksize!=0);
+
+        
+        fclose(file);
+        httpd_resp_send_chunk(req, NULL, 0);
+        free(chunk);
+        return ESP_OK;
+    }
+
+}
+
 
 esp_err_t html_handler(httpd_req_t *req){
     FILE *file = fopen("/spiffs/index.html", "r");
@@ -230,13 +265,10 @@ esp_err_t html_handler(httpd_req_t *req){
             chunksize = fread(chunk, 1, PAGE_BUFF, file);
 
         if (chunksize > 0) {
-                /* Send the buffer contents as HTTP response chunk */
                 if (httpd_resp_send_chunk(req, chunk, chunksize) != ESP_OK) {
                     fclose(file);
                     ESP_LOGE(TAG, "Request failed!");
-                    /* Abort sending file */
                     httpd_resp_sendstr_chunk(req, NULL);
-                    /* Respond with 500 Internal Server Error */
                     httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get index.html");
                 return ESP_FAIL;
             }
@@ -257,7 +289,7 @@ esp_err_t html_handler(httpd_req_t *req){
 esp_err_t js_handler(httpd_req_t *req){
     FILE *file = fopen("/spiffs/main.js", "r");
     if(file==NULL){
-         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get index.html");
+         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get main.js");
          return ESP_FAIL;
     }
     else{
@@ -268,13 +300,10 @@ esp_err_t js_handler(httpd_req_t *req){
             chunksize = fread(chunk, 1, PAGE_BUFF, file);
 
         if (chunksize > 0) {
-                /* Send the buffer contents as HTTP response chunk */
                 if (httpd_resp_send_chunk(req, chunk, chunksize) != ESP_OK) {
                     fclose(file);
                     ESP_LOGE(TAG, "Request failed!");
-                    /* Abort sending file */
                     httpd_resp_sendstr_chunk(req, NULL);
-                    /* Respond with 500 Internal Server Error */
                     httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get main.js");
                 return ESP_FAIL;
             }
@@ -306,13 +335,10 @@ esp_err_t css_handler(httpd_req_t *req){
             chunksize = fread(chunk, 1, PAGE_BUFF, file);
 
         if (chunksize > 0) {
-                /* Send the buffer contents as HTTP response chunk */
                 if (httpd_resp_send_chunk(req, chunk, chunksize) != ESP_OK) {
                     fclose(file);
                     ESP_LOGE(TAG, "Request failed!");
-                    /* Abort sending file */
                     httpd_resp_sendstr_chunk(req, NULL);
-                    /* Respond with 500 Internal Server Error */
                     httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get styles.css");
                 return ESP_FAIL;
             }
@@ -329,6 +355,42 @@ esp_err_t css_handler(httpd_req_t *req){
     }
 
 }
+
+esp_err_t chartjs_handler(httpd_req_t *req){
+    FILE *file = fopen("/spiffs/chart.js", "r");
+    if(file==NULL){
+         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get chart.js");
+         return ESP_FAIL;
+    }
+    else{
+        httpd_resp_set_type(req, "text/js");
+        char *chunk = malloc(PAGE_BUFF);
+        size_t chunksize;
+        do{
+            chunksize = fread(chunk, 1, PAGE_BUFF, file);
+
+        if (chunksize > 0) {
+                if (httpd_resp_send_chunk(req, chunk, chunksize) != ESP_OK) {
+                    fclose(file);
+                    ESP_LOGE(TAG, "Request failed!");
+                    httpd_resp_sendstr_chunk(req, NULL);
+                    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get chart.js");
+                return ESP_FAIL;
+            }
+            }
+
+        
+        }while(chunksize!=0);
+
+        
+        fclose(file);
+        httpd_resp_send_chunk(req, NULL, 0);
+        free(chunk);
+        return ESP_OK;
+    }
+
+}
+
 
 void http_start(void){
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
@@ -361,11 +423,28 @@ void http_start(void){
     .handler  = css_handler,
     .user_ctx = NULL
     };
+
+    httpd_uri_t favicon = {
+    .uri      = "/favicon.ico",
+    .method   = HTTP_GET,
+    .handler  = favicon_handler,
+    .user_ctx = NULL
+    };
+    httpd_uri_t chart = {
+    .uri      = "/chart.js",
+    .method   = HTTP_GET,
+    .handler  = chartjs_handler,
+    .user_ctx = NULL
+    };
+
+
     if (httpd_start(&server, &config) == ESP_OK) {
         ESP_ERROR_CHECK(httpd_register_uri_handler(server, &data));
         ESP_ERROR_CHECK(httpd_register_uri_handler(server, &html));
         ESP_ERROR_CHECK(httpd_register_uri_handler(server, &js));
         ESP_ERROR_CHECK(httpd_register_uri_handler(server, &css));
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &favicon));
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &chart));
     }
 
 }
@@ -391,7 +470,7 @@ void wifi_init(void)
     wifi_init_sta();
     http_start();
     spiffs_init();
-    //xTaskCreate(cntup,"cntTask",configMINIMAL_STACK_SIZE*8, NULL, 5, NULL);
+    xTaskCreate(cntup,"cntTask",configMINIMAL_STACK_SIZE*3, NULL, 5, NULL);
 }
 
 
