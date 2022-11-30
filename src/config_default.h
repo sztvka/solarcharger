@@ -1,3 +1,6 @@
+// RENAME TO config.h
+
+static const char *TAG = "SolarCharger";
 #define ESP_WIFI_SSID      ""
 #define ESP_WIFI_PASS      ""
 #define ESP_MAXIMUM_RETRY  3

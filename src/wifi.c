@@ -33,7 +33,7 @@ static EventGroupHandle_t s_wifi_event_group;
 #define WIFI_FAIL_BIT      BIT1
 
 
-static const char *TAG = "SolarCharger";
+
 static int s_retry_num = 3;
 int counter = 0;
 

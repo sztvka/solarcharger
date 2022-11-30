@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "ina219.h": "c",
-        "freertos.h": "c"
+        "freertos.h": "c",
+        "spiffs.h": "c",
+        "esp_log.h": "c"
     }
 }

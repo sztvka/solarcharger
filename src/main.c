@@ -6,6 +6,7 @@
 #include <esp_log.h>
 #include <assert.h>
 #include "wifi.h"
+#include "spiffs.h"
 
 #define I2C_PORT 0
 
@@ -66,5 +67,7 @@ void app_main()
     wifi_init();
     setINA219_1(0.1,0.1,0.1);
     setINA219_2(0.2,0.2,0.2);
+    spiffs_init();
+    spiffs_test();
     //xTaskCreate(ina_measure, "INA219_1", configMINIMAL_STACK_SIZE * 8, (void*)INA219_1_ADDR, 5, NULL);
 }
