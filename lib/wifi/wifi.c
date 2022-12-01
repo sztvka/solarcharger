@@ -214,7 +214,6 @@ esp_err_t json_handler(httpd_req_t *req){
 esp_err_t file_handler(httpd_req_t *req){
     char path[] = "/spiffs";
     char *buf = malloc(sizeof(path)+sizeof(req->uri));
-    ESP_LOGI(TAG, "%d", strlen(req->uri));
     if(strlen(req->uri)==1) {
         free(buf);
         buf = "/spiffs/index.html";
@@ -223,10 +222,10 @@ esp_err_t file_handler(httpd_req_t *req){
         sprintf(buf, "%s%s", path, req->uri);
     }
 
-    ESP_LOGI(TAG, "%s", buf);
     FILE *file = fopen(buf, "r");
     if(file==NULL){
          httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get");
+         free(buf);
          return ESP_FAIL;
     }
     else{

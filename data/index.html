@@ -1,13 +1,48 @@
 <html>
     <head>
+        <!-- Attaching loading spinner css to the main index file for quicker response-->
+        <style> 
+            .loader {
+                margin: auto;
+                top: 0; left: 0; bottom: 0; right: 0;
+                border: 20px solid #EAF0F6;
+                border-radius: 50%;
+                border-top: 20px solid #FF7A59;
+                position: absolute;
+                width: 200px;
+                height: 200px;
+                animation: spinner 1s linear infinite;
+            }
+            
+            @keyframes spinner {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            .mask { 
+                position: absolute;
+                top: 0; left: 0; bottom: 0; right: 0;
+                background-color: #191a1c;
+            }
+            .loadtext {
+                position: absolute;
+                margin: auto;
+                color: white;
+                text-align: center;
+                font-weight: bold;
+                font-size: 4rem;
+                font-family: Verdana, Geneva, Tahoma, sans-serif;
+                top: 7rem; left: 0; bottom: 0; right: 0;   
+            }
+        </style>
         <link rel="stylesheet" href="styles.css">
         <link rel="stylesheet" href="bootstrap-grid.min.css">
         <link rel="icon" type="image/x-icon" href="favicon.ico">
     </head>
     <body>
+        <div class="mask"><span class="loadtext">Loading...</span><div class="loader"></div></div>  
         <h1>Test</h1>
-        <script src="main.js"></script>
         <script src="chart.js"></script>
         <script src="bootstrap.min.js"></script>
+        <script src="main.js"></script>
     </body>
 </html>

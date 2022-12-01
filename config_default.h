@@ -7,7 +7,7 @@ char *sites[] = {"/", "/main.js", "/styles.css", "/favicon.ico", "/chart.js", "/
 #define ESP_MAXIMUM_RETRY  3
 #define ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA2_PSK
 #define DHCP true
-#define PAGE_BUFF 2048
+#define PAGE_BUFF 2048 //safe value
 #if (DHCP==false)
     #define IP_1 192
     #define IP_2 168
