@@ -1,6 +1,7 @@
 // This file will be set as a config file while building. In order to reset the config, remove config.h at lib/config
 
 static const char *TAG = "SolarCharger";
+char *sites[] = {"/", "/main.js", "/styles.css", "/favicon.ico", "/chart.js", "/bootstrap.min.js", "/bootstrap-grid.min.css"};
 #define ESP_WIFI_SSID      ""
 #define ESP_WIFI_PASS      ""
 #define ESP_MAXIMUM_RETRY  3

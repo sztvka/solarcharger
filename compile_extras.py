@@ -34,6 +34,8 @@ for filename in os.listdir(regular_data):
             shutil.copy2(file_path, minified_path)
         elif "chart" in filename:
             shutil.copy2(file_path, minified_path)
+        elif "bootstrap" in filename:
+            shutil.copy2(file_path, minified_path)
         else:
             if os.name == 'nt':
                 runstring = ".\minify " + file_path + " -o " + minified_path
