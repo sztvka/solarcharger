@@ -187,6 +187,8 @@ void wifi_init_sta(void)
 
 
 
+
+
 esp_err_t json_handler(httpd_req_t *req){
     cJSON *resp;
     resp = cJSON_CreateObject();
@@ -214,15 +216,29 @@ esp_err_t json_handler(httpd_req_t *req){
     return ESP_OK;
 }
 
+esp_err_t file_handler(httpd_req_t *req){
+    char path[] = "/spiffs";
+    char *buf = malloc(sizeof(path)+sizeof(req->uri));
+    ESP_LOGI(TAG, "%d", strlen(req->uri));
+    if(strlen(req->uri)==1) {
+        free(buf);
+        buf = "/spiffs/index.html";
+    }
+    else{
+        sprintf(buf, "%s%s", path, req->uri);
+    }
 
-esp_err_t favicon_handler(httpd_req_t *req){
-    FILE *file = fopen("/spiffs/favicon.ico", "r");
+    ESP_LOGI(TAG, "%s", buf);
+    FILE *file = fopen(buf, "r");
     if(file==NULL){
-         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get favicon.ico");
+         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get");
          return ESP_FAIL;
     }
     else{
-        httpd_resp_set_type(req, "image/x-icon");
+        if(strstr(buf, ".ico")!=NULL) httpd_resp_set_type(req, "image/x-icon");
+        else if(strstr(buf, ".css")!=NULL) httpd_resp_set_type(req, "text/css");       
+        else if(strstr(buf, ".js")!=NULL) httpd_resp_set_type(req, "text/js");
+        else httpd_resp_set_type(req, "text/html");
         char *chunk = malloc(PAGE_BUFF);
         size_t chunksize;
         do{
@@ -233,7 +249,7 @@ esp_err_t favicon_handler(httpd_req_t *req){
                     fclose(file);
                     ESP_LOGE(TAG, "Request failed!");
                     httpd_resp_sendstr_chunk(req, NULL);
-                    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get favicon.ico");
+                    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get");
                 return ESP_FAIL;
             }
             }
@@ -245,6 +261,177 @@ esp_err_t favicon_handler(httpd_req_t *req){
         fclose(file);
         httpd_resp_send_chunk(req, NULL, 0);
         free(chunk);
+        if(strlen(req->uri)!=1) free(buf);
+        return ESP_OK;
+    }
+
+}
+
+
+
+
+
+
+void http_start(void){
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    httpd_handle_t server = NULL;
+   
+    httpd_uri_t data = {
+    .uri      = "/data",
+    .method   = HTTP_GET,
+    .handler  = json_handler,
+    .user_ctx = NULL
+    };
+
+    httpd_uri_t html = {
+    .uri      = "/",
+    .method   = HTTP_GET,
+    .handler  = file_handler,
+    .user_ctx = NULL
+    };
+
+    httpd_uri_t js = {
+    .uri      = "/main.js",
+    .method   = HTTP_GET,
+    .handler  = file_handler,
+    .user_ctx = NULL
+    };
+
+    httpd_uri_t css = {
+    .uri      = "/styles.css",
+    .method   = HTTP_GET,
+    .handler  = file_handler,
+    .user_ctx = NULL
+    };
+
+    httpd_uri_t favicon = {
+    .uri      = "/favicon.ico",
+    .method   = HTTP_GET,
+    .handler  = file_handler,
+    .user_ctx = NULL
+    };
+    httpd_uri_t chart = {
+    .uri      = "/chart.js",
+    .method   = HTTP_GET,
+    .handler  = file_handler,
+    .user_ctx = NULL
+    };
+
+
+    if (httpd_start(&server, &config) == ESP_OK) {
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &data));
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &html));
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &js));
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &css));
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &favicon));
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &chart));
+    }
+
+}
+
+void cntup(void* params){
+    while(1){
+    counter++;
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
+void wifi_init(void)
+{
+    //Initialize NVS
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+      ESP_ERROR_CHECK(nvs_flash_erase());
+      ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+
+    ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
+    wifi_init_sta();
+    http_start();
+    spiffs_init();
+    xTaskCreate(cntup,"cntTask",configMINIMAL_STACK_SIZE*3, NULL, 5, NULL);
+}
+
+
+
+
+/*
+LEGACY HANDLERS 
+
+
+esp_err_t html_handler(httpd_req_t *req){
+    httpd_resp_set_type(req, "text/html");
+    char *response = return_html(PAGE_BUFF);
+    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
+    free(response);
+    return ESP_OK;
+}
+
+esp_err_t js_handler(httpd_req_t *req){
+    httpd_resp_set_type(req, "text/javascript");
+    char *response = return_js(PAGE_BUFF);
+    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
+    free(response);
+    return ESP_OK;
+}
+
+esp_err_t css_handler(httpd_req_t *req){
+    httpd_resp_set_type(req, "text/css");
+    char *response = return_css(PAGE_BUFF);
+    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
+    free(response);
+    return ESP_OK;
+}
+
+
+
+esp_err_t favicon_handler(httpd_req_t *req){
+    char path[] = "/spiffs";
+    char *buf = malloc(sizeof(path)+sizeof(req->uri));
+    if(strlen(req->uri)==1) {
+        buf = "/spiffs/index.html";
+    }
+    else{
+        
+        //char buf[sizeof(path)+sizeof(req->uri)];
+        sprintf(buf, "%s%s", path, req->uri);
+    }
+
+    ESP_LOGI(TAG, "%s", buf);
+    FILE *file = fopen(buf, "r");
+    if(file==NULL){
+         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get");
+         return ESP_FAIL;
+    }
+    else{
+        if(strstr(buf, ".ico")!=NULL) httpd_resp_set_type(req, "image/x-icon");
+        else if(strstr(buf, ".css")!=NULL) httpd_resp_set_type(req, "text/css");       
+        else if(strstr(buf, ".js")!=NULL) httpd_resp_set_type(req, "text/js");
+        else httpd_resp_set_type(req, "text/html");
+        char *chunk = malloc(PAGE_BUFF);
+        size_t chunksize;
+        do{
+            chunksize = fread(chunk, 1, PAGE_BUFF, file);
+
+        if (chunksize > 0) {
+                if (httpd_resp_send_chunk(req, chunk, chunksize) != ESP_OK) {
+                    fclose(file);
+                    ESP_LOGE(TAG, "Request failed!");
+                    httpd_resp_sendstr_chunk(req, NULL);
+                    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get");
+                return ESP_FAIL;
+            }
+            }
+
+        
+        }while(chunksize!=0);
+
+        
+        fclose(file);
+        httpd_resp_send_chunk(req, NULL, 0);
+        free(chunk);
+        free(buf);
         return ESP_OK;
     }
 
@@ -252,6 +439,7 @@ esp_err_t favicon_handler(httpd_req_t *req){
 
 
 esp_err_t html_handler(httpd_req_t *req){
+    ESP_LOGI(TAG, "%d", strlen(req->uri));
     FILE *file = fopen("/spiffs/index.html", "r");
     if(file==NULL){
          httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to get index.html");
@@ -391,118 +579,6 @@ esp_err_t chartjs_handler(httpd_req_t *req){
 
 }
 
-
-void http_start(void){
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    httpd_handle_t server = NULL;
-   
-    httpd_uri_t data = {
-    .uri      = "/data",
-    .method   = HTTP_GET,
-    .handler  = json_handler,
-    .user_ctx = NULL
-    };
-
-    httpd_uri_t html = {
-    .uri      = "/",
-    .method   = HTTP_GET,
-    .handler  = html_handler,
-    .user_ctx = NULL
-    };
-
-    httpd_uri_t js = {
-    .uri      = "/main.js",
-    .method   = HTTP_GET,
-    .handler  = js_handler,
-    .user_ctx = NULL
-    };
-
-    httpd_uri_t css = {
-    .uri      = "/styles.css",
-    .method   = HTTP_GET,
-    .handler  = css_handler,
-    .user_ctx = NULL
-    };
-
-    httpd_uri_t favicon = {
-    .uri      = "/favicon.ico",
-    .method   = HTTP_GET,
-    .handler  = favicon_handler,
-    .user_ctx = NULL
-    };
-    httpd_uri_t chart = {
-    .uri      = "/chart.js",
-    .method   = HTTP_GET,
-    .handler  = chartjs_handler,
-    .user_ctx = NULL
-    };
-
-
-    if (httpd_start(&server, &config) == ESP_OK) {
-        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &data));
-        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &html));
-        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &js));
-        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &css));
-        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &favicon));
-        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &chart));
-    }
-
-}
-
-void cntup(void* params){
-    while(1){
-    counter++;
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-}
-
-void wifi_init(void)
-{
-    //Initialize NVS
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-      ESP_ERROR_CHECK(nvs_flash_erase());
-      ret = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK(ret);
-
-    ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
-    wifi_init_sta();
-    http_start();
-    spiffs_init();
-    xTaskCreate(cntup,"cntTask",configMINIMAL_STACK_SIZE*3, NULL, 5, NULL);
-}
-
-
-
-
-/*
-LEGACY HANDLERS 
-
-
-esp_err_t html_handler(httpd_req_t *req){
-    httpd_resp_set_type(req, "text/html");
-    char *response = return_html(PAGE_BUFF);
-    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
-    free(response);
-    return ESP_OK;
-}
-
-esp_err_t js_handler(httpd_req_t *req){
-    httpd_resp_set_type(req, "text/javascript");
-    char *response = return_js(PAGE_BUFF);
-    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
-    free(response);
-    return ESP_OK;
-}
-
-esp_err_t css_handler(httpd_req_t *req){
-    httpd_resp_set_type(req, "text/css");
-    char *response = return_css(PAGE_BUFF);
-    httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
-    free(response);
-    return ESP_OK;
-}
 
 
 

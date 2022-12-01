@@ -30,7 +30,9 @@ for filename in os.listdir(regular_data):
     file_path = os.path.join(regular_data, filename)
     minified_path = os.path.join(minified_data, filename)
     if os.path.isfile(file_path):
-        if "favicon" or "chart" in filename:
+        if "favicon" in filename:
+            shutil.copy2(file_path, minified_path)
+        elif "chart" in filename:
             shutil.copy2(file_path, minified_path)
         else:
             if os.name == 'nt':
