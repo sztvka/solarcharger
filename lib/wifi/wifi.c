@@ -36,7 +36,6 @@ static EventGroupHandle_t s_wifi_event_group;
 
 
 static int s_retry_num = 0;
-int counter = 0;
 
 struct INA219 {
     float voltage;
@@ -204,7 +203,6 @@ esp_err_t json_handler(httpd_req_t *req){
     cJSON_AddItemToObject(resp, "ina1", ina219_1);
     cJSON_AddItemToObject(resp, "ina2", ina219_2);
 
-    cJSON_AddNumberToObject(resp,"counter",counter);
     char * response = cJSON_Print(resp);
     httpd_resp_set_type(req, "applicaton/json");
     httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
