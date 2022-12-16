@@ -118,11 +118,11 @@ void wifi_init_sta(void)
         esp_netif_dhcpc_stop(wifi_sta_conn);
 
         esp_netif_ip_info_t ip_info;
-
-        IP4_ADDR(&ip_info.ip, IP_1, IP_2, IP_3, IP_4);
-        IP4_ADDR(&ip_info.gw, GATEWAY_1, GATEWAY_2, GATEWAY_3, GATEWAY_4);
-        IP4_ADDR(&ip_info.netmask, MASK_1, MASK_2, MASK_3, MASK_4);
-
+        #if (DHCP==false)
+                IP4_ADDR(&ip_info.ip, IP_1, IP_2, IP_3, IP_4);
+                IP4_ADDR(&ip_info.gw, GATEWAY_1, GATEWAY_2, GATEWAY_3, GATEWAY_4);
+                IP4_ADDR(&ip_info.netmask, MASK_1, MASK_2, MASK_3, MASK_4);
+        #endif
         esp_netif_set_ip_info(wifi_sta_conn, &ip_info);       
     }
 
@@ -291,12 +291,6 @@ void http_start(void){
 
 }
 
-void cntup(void* params){
-    while(1){
-    counter++;
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-}
 
 void wifi_init(void)
 {
@@ -312,5 +306,5 @@ void wifi_init(void)
     wifi_init_sta();
     http_start();
     spiffs_init();
-    xTaskCreate(cntup,"cntTask",configMINIMAL_STACK_SIZE*3, NULL, 5, NULL);
+    //ESP_LOGI(TAG, "[APP] Free memory: %u bytes", esp_get_free_heap_size());
 }
