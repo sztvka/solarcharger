@@ -12,6 +12,10 @@
         "config.h": "c",
         "sys.h": "c",
         "string.h": "c",
-        "assert.h": "c"
+        "assert.h": "c",
+        "random": "c",
+        "gpio.h": "c",
+        "adc.h": "c",
+        "*.tcc": "c"
     }
 }
