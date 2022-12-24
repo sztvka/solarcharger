@@ -125,36 +125,15 @@ void servo_loop(){
 
 //wieksze od 0 ma isc w prawo
 void adjustServos(int diff_vert, int diff_hor){
-  /*  float *servo1_angle = malloc(sizeof(float));
-    float *servo2_angle = malloc(sizeof(float));
-    iot_servo_read_angle(LEDC_LOW_SPEED_MODE, 0, servo1_angle);
-    iot_servo_read_angle(LEDC_LOW_SPEED_MODE, 1, servo2_angle); */
     if(abs(diff_vert)>=LDR_DIFF_MOVE_TRESHOLD){
-        if(diff_vert>0 && servo2_angle<90){
-           // int angle = (int)(*servo2_angle+1.0f);
-         //   ESP_ERROR_CHECK(iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 1, angle));
-            servo2_angle++;
-            iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 1, servo2_angle);
-            
-        }
-        else if(diff_vert<0 && servo2_angle>0){
-            //float angle = *servo2_angle-1.0f;
-            servo2_angle--;
-            iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 1, servo2_angle);
-            
-        }
+        if(diff_vert>0 && servo2_angle<89) servo2_angle+=2;
+        else if(diff_vert<0 && servo2_angle>1) servo2_angle-=2;
+        iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 1, servo2_angle);
     }
     if(abs(diff_hor)>=LDR_DIFF_MOVE_TRESHOLD){
-        if(diff_hor>0 && servo1_angle<90){
-           servo1_angle++;
-            iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 0, servo1_angle);
-            
-        }
-        else if(diff_hor<0 && servo1_angle>0){
-            servo1_angle--;
-            iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 0, servo1_angle);
-            
-        }
+        if(diff_hor>0 && servo1_angle<89) servo1_angle+=2;
+        else if(diff_hor<0 && servo1_angle>1) servo1_angle-=2;
+        iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 0, servo1_angle);
     }
 }
 
@@ -219,7 +198,6 @@ void ldr_read(){
         for(int i = 0; i<4; i++){
             ldr_raw_reading[i] /= ADC_SAMPLE_SIZE;
             ldr_voltage[i] = esp_adc_cal_raw_to_voltage(ldr_raw_reading[i], ldr_adc_chars);
-            printf("%d: %d mV\n", i, ldr_voltage[i]);
         };
 
     int avg_top = (ldr_voltage[1] + ldr_voltage[2]) / 2;
@@ -231,11 +209,9 @@ void ldr_read(){
     int diff_horizontal = avg_left-avg_right; //positive left is brighter   negative right is brighter
 
 
-    printf("Diff vertical: %d\n", diff_vertical);
-    printf("Diff horizontal: %d\n", diff_horizontal);
    
     adjustServos(diff_vertical, diff_horizontal);
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
 
