@@ -4,12 +4,17 @@ import shutil
 import os
 
 config_present = os.path.isfile('lib/config/config.h')
+dir_present = os.path.isdir('lib/config')
 
 if config_present:
     print("Config file found, proceeding...")
 else:
     print("Config file not found, using config_default.h ...")
-    shutil.copy2('config_default.h', 'lib/config/config.h')
+    if not dir_present:
+        os.mkdir('lib/config')
+        shutil.copy2('config_default.h', 'lib/config/config.h')
+    else:
+        shutil.copy2('config_default.h', 'lib/config/config.h')
 
 
 print("Minifying data files....")
@@ -38,8 +43,16 @@ for filename in os.listdir(regular_data):
             shutil.copy2(file_path, minified_path)
         else:
             if os.name == 'nt':
-                runstring = ".\minify --minify-css " + file_path + " -o " + minified_path
-                os.system(runstring)
+                if ".js" in filename:
+                    runstring = ".\minify " + file_path + " -o " + minified_path
+                    os.system(runstring)
+                else:
+                    runstring = ".\minify --minify-css " + file_path + " -o " + minified_path
+                    os.system(runstring)
             else:
-                runstring = "./minify --minify-css " + file_path + " -o " + minified_path
-                os.system(runstring)
+                 if ".js" in filename:
+                    runstring = "./minify " + file_path + " -o " + minified_path
+                    os.system(runstring)
+                 else:
+                    runstring = "./minify --minify-css " + file_path + " -o " + minified_path
+                    os.system(runstring)

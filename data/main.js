@@ -1,41 +1,36 @@
-var a = [2, 3, 4, 5];
-a.forEach(element => {
-    console.log(element*3);    
-});
-var cnt = 0;
-const ctx = document.getElementById('myChart');
-
-var voltage = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: [1],
-    datasets: [{
-      label: 'Value',
-      data: [0],
-      borderWidth: 1
-    }]
-  },
-  options: {
-    scales: {
-      y: {
-        beginAtZero: true
-      }
-    }
-  }
-});
-
-
 updateGauges = (obj) =>{
-    cnt++;
-    if(voltage.data.labels.length>19){
-        voltage.data.labels = [];
-        voltage.data.datasets[0].data = [];
-        cnt = 1;
-    };
-    
-    voltage.data.labels.push(cnt);
-    voltage.data.datasets[0].data.push(obj.ina1.voltage);
-    voltage.update();
+  var newTime = Date.now()+3600000;
+  var usedPwr = ((obj.ina2.wattage)/1000).toFixed(2);
+  var generatedPwr = ((obj.ina1.wattage)/1000).toFixed(2);
+  var bat = (obj.ina1.voltage).toFixed(2);
+  var ratio = ((generatedPwr / usedPwr)*100).toFixed(2);
+  document.querySelector("#usedpwr").innerText = usedPwr;
+  document.querySelector("#generatedpwr").innerText = generatedPwr;
+  document.querySelector("#ratio").innerText = ratio;
+  document.querySelector("#bat").innerText = bat;
+  solardata.push([newTime,generatedPwr]);
+  espdata.push([newTime,usedPwr]);
+  var solarmax = 0;
+  var espmax = 0;
+  solardata.map(d => {
+    solarmax = Math.max(solarmax, d[1])
+  });
+  espdata.map(d => {
+    espmax = Math.max(espmax, d[1])
+  });
+  espchart.updateOptions({
+    yaxis: {
+      max: (((espmax > solarmax) ? espmax : solarmax)+1).toFixed(0)*1
+    }
+  });
+
+
+  espchart.updateSeries([{
+    data: espdata
+  },
+  {
+    data: solardata
+  }]);
 };
 
 
@@ -46,7 +41,7 @@ fetchData = () => {
     fetch('data', {
         method: 'GET',
         headers: {
-            'Accept': 'application/json',
+            'Accept': 'application/json'
         },
     })
     .then(response => response.json())
@@ -58,7 +53,7 @@ fetchData = () => {
 
 window.onload = function() {
     document.getElementsByClassName("mask")[0].style = "visibility: hidden";;
-  //  setInterval(fetchData, 1000);
+    setInterval(fetchData, 1000);
 };
 
 
@@ -68,7 +63,7 @@ function getNewData(baseval, yrange) {
     x: newTime,
     y: Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min
   };
-}
+};
 
 window.Apex = {
   chart: {
@@ -111,7 +106,7 @@ window.Apex = {
       }
     }
   }
-}
+};
 
 
 
@@ -131,6 +126,7 @@ var EspOptions = {
     id: 'realtime',
     height: 400,
     type: 'line',
+    fontFamily: 'Rubik, Verdana, sans-serif',
     animations: {
       enabled: true,
       easing: 'linear',
@@ -167,7 +163,7 @@ var EspOptions = {
     range: 20000,
   },
   yaxis: {
-    max: 40
+    max: 3
   },
   legend: {
     show: true,
@@ -184,22 +180,3 @@ var EspOptions = {
 
 var espchart = new ApexCharts(document.querySelector("#espchart"), EspOptions);
 espchart.render();
-
-
-
-
-window.setInterval(function () {
-  var b = {};
-  var a = {};
-  b = getNewData(Date.now(), {min: 0, max:30});
-  a = getNewData(Date.now(), {min: 0, max:20});
-  solardata.push([a.x,a.y]);
-  espdata.push([b.x,b.y]);
-  espchart.updateSeries([{
-    data: espdata
-  },
-  {
-    data: solardata
-  }]);
-}, 1000)
-
