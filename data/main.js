@@ -71,6 +71,30 @@ function getNewData(baseval, yrange) {
 }
 
 window.Apex = {
+  chart: {
+    foreColor: "#fff",
+    toolbar: {
+      show: false
+    }
+  },
+  colors: ["#e63946", "#2ec4b6", "#f02fc2"],
+  stroke: {
+    width: 5
+  },
+  dataLabels: {
+    enabled: false
+  },
+  grid: {
+    borderColor: "#40475D"
+  },
+  xaxis: {
+    axisTicks: {
+      color: "#333"
+    },
+    axisBorder: {
+      color: "#333"
+    }
+  },
   tooltip: {
     theme: "dark",
     x: {
@@ -81,24 +105,31 @@ window.Apex = {
             return "0"+d.getUTCMinutes();
           }
           else return d.getUTCMinutes();
-        }
+        };
         var parsed = d.getUTCHours()+":"+min()+":"+d.getUTCSeconds();
-        return parsed
+        return parsed;
       }
     }
   }
 }
 
 
-var data = [];
-var options = {
+
+var espdata = [];
+var solardata = [];
+var EspOptions = {
   series: [{
-    name: "Power",
-    data: data.slice()
-}],
+    name: "Used Power",
+    data: espdata.slice()
+},
+  {
+    name: "Generated Power",
+    data: solardata.slice()
+  }
+],
   chart: {
     id: 'realtime',
-    height: 350,
+    height: 400,
     type: 'line',
     animations: {
       enabled: true,
@@ -121,35 +152,54 @@ var options = {
     curve: 'smooth'
   },
   title: {
-    text: 'Dynamic Updating Chart',
-    align: 'left'
+    text: 'Used power',
+    align: 'left',
+    color: '#EDF2F4',
+    style: {
+      fontSize: "17px"
+    }
   },
   markers: {
     size: 0
   },
   xaxis: {
     type: 'datetime',
-    range: 5000,
+    range: 20000,
   },
   yaxis: {
     max: 40
   },
   legend: {
-    show: false
+    show: true,
+    floating: true,
+    horizontalAlign: "left",
+    onItemClick: {
+      toggleDataSeries: false
+    },
+    position: "top",
+    offsetY: -33,
+    offsetX: 100
   },
 };
 
-var chart = new ApexCharts(document.querySelector("#chart"), options);
-chart.render();
+var espchart = new ApexCharts(document.querySelector("#espchart"), EspOptions);
+espchart.render();
+
+
 
 
 window.setInterval(function () {
   var b = {};
+  var a = {};
   b = getNewData(Date.now(), {min: 0, max:30});
-  data.push([b.x,b.y]);
-
-chart.updateSeries([{
-  data: data
-}])
+  a = getNewData(Date.now(), {min: 0, max:20});
+  solardata.push([a.x,a.y]);
+  espdata.push([b.x,b.y]);
+  espchart.updateSeries([{
+    data: espdata
+  },
+  {
+    data: solardata
+  }]);
 }, 1000)
 

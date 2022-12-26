@@ -2,6 +2,30 @@ h1 {
     color: red;
 }
 body {
-    background-color: #191a1c;
-    color: white;
+    background-color: #0d1b2a;
+    color: #e0e1dd;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
+.apexcharts-xaxistooltip {
+    background: #0d1b2a;
+    color: #e0e1dd;
+  }
+.chartbox {
+    background-color: #1b263b;
+}
+.gauges {
+    margin-top: 100px;
+    margin-bottom: 5%;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+
+}
+/*
+2B2D42
+8D99AE
+EDF2F4
+EF233C
+D90429
+
+
+https://coolors.co/palette/0d1b2a-1b263b-415a77-778da9-e0e1dd
+*/
