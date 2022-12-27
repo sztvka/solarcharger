@@ -204,8 +204,13 @@ esp_err_t json_handler(httpd_req_t *req){
     cJSON_AddItemToObject(resp, "ina2", ina219_2);
 
     char * response = cJSON_Print(resp);
+    
     httpd_resp_set_type(req, "applicaton/json");
+    httpd_resp_set_hdr(req, "Connection", "close");
+    printf("Free memory left: %u\n", esp_get_free_heap_size());
     httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
+    cJSON_free(response);
+    cJSON_Delete(resp);
     return ESP_OK;
 }
 
@@ -231,6 +236,7 @@ esp_err_t file_handler(httpd_req_t *req){
         else if(strstr(buf, ".css")!=NULL) httpd_resp_set_type(req, "text/css");       
         else if(strstr(buf, ".js")!=NULL) httpd_resp_set_type(req, "text/js");
         else httpd_resp_set_type(req, "text/html");
+        httpd_resp_set_hdr(req, "Connection", "close");
         char *chunk = malloc(PAGE_BUFF);
         size_t chunksize;
         do{
@@ -263,6 +269,8 @@ esp_err_t file_handler(httpd_req_t *req){
 void http_start(void){
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.max_uri_handlers = (sizeof(sites)+1);
+    config.stack_size = 8192;
+    config.lru_purge_enable = true;
     httpd_handle_t server = NULL;
     size_t sitescount = sizeof(sites) / sizeof(sites[0]);
 
