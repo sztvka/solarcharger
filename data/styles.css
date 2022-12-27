@@ -40,6 +40,7 @@ body {
     height: 50px;
     width: 99vw;
     text-align: center;
+    visibility: hidden;
 }
 
 .footer a {

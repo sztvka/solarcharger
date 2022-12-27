@@ -53,6 +53,7 @@ fetchData = () => {
 
 window.onload = function() {
     document.getElementsByClassName("mask")[0].style = "visibility: hidden";;
+    document.getElementsByClassName("footer")[0].style = "visibility: visible";;
     setInterval(fetchData, 1000);
 };
 
