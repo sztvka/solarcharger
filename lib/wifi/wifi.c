@@ -262,6 +262,7 @@ esp_err_t file_handler(httpd_req_t *req){
 
 void http_start(void){
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.max_uri_handlers = (sizeof(sites)+1);
     httpd_handle_t server = NULL;
     size_t sitescount = sizeof(sites) / sizeof(sites[0]);
 
