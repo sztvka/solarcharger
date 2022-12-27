@@ -33,6 +33,23 @@ body {
 .gauges svg path {
     fill:#778DA9;
 }
+.footer {
+    position: absolute;
+    bottom: 0;
+    background-color: #1B263B;
+    height: 50px;
+    width: 99vw;
+    text-align: center;
+}
+
+.footer a {
+    color: #e63946;
+}
+.pagetitle{
+    text-align: center;
+    font-weight: 700;
+    font-size: 3rem;
+}
 /*
 2B2D42
 8D99AE

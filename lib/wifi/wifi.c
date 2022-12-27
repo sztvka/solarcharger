@@ -207,7 +207,6 @@ esp_err_t json_handler(httpd_req_t *req){
     
     httpd_resp_set_type(req, "applicaton/json");
     httpd_resp_set_hdr(req, "Connection", "close");
-    printf("Free memory left: %u\n", esp_get_free_heap_size());
     httpd_resp_send(req, response, HTTPD_RESP_USE_STRLEN);
     cJSON_free(response);
     cJSON_Delete(resp);

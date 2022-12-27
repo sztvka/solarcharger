@@ -35,6 +35,7 @@
             }
         </style>
         <meta charset="UTF-8">
+        <title>SolarCharger</title>
         <link rel="stylesheet" href="styles.css">
         <link rel="stylesheet" href="bootstrap-grid.min.css">
         <link rel="stylesheet" href="apexcharts.min.css">
@@ -44,22 +45,25 @@
         <div class="mask"><span class="loadtext">Loading...</span><div class="loader"></div></div>  
         
         <div class="container">
+            <div class="row">
+                <div class="col-12 pagetitle">SolarCharger</div>
+            </div>
             <div class="row my-5 gauges">
                 <div class="col-lg-3 chartbox p-4">
                     <div class="title">Used Power</div>
-                    <div class="info"><span id="usedpwr">3.3</span> W </div>                  
+                    <div class="info"><span id="usedpwr">0.0</span> W </div>                  
                 </div>
                 <div class="col-lg-3 chartbox p-4">
                     <div class="title">Generated Power</div>
-                    <div class="info"><span id="generatedpwr">3.3</span> W</div>      
+                    <div class="info"><span id="generatedpwr">0.0</span> W</div>      
                 </div>
                 <div class="col-lg-3 chartbox p-4">
                     <div class="title">Power Ratio</div>
-                    <div class="info"><span id="ratio">3.3</span> %</div>                 
+                    <div class="info"><span id="ratio">0.0</span> %</div>                 
                 </div>
                 <div class="col-lg-3 chartbox p-4">
                     <div class="title">Battery Voltage</div>
-                    <div class="info"><span id="bat">3.3</span> V</div>                     
+                    <div class="info"><span id="bat">0.0</span> V</div>                     
                 </div>
 
             </div>
@@ -71,9 +75,10 @@
 
             </div>
         </div>
-
+        <div class="footer">Designed by Jakub Sztuka, 2023   <br><a href="https://github.com/sztvka">GitHub</a></div>
         <script src="bootstrap.min.js"></script>
         <script src="apexcharts.min.js"></script>
         <script src="main.js"></script>
+
     </body>
 </html>
