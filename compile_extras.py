@@ -1,25 +1,15 @@
 #Script used for setting config and minifying web files before loading them onto spiffs.
 
-Import("env")
-env.Execute("$PYTHONEXE -m pip install css-html-js-minify rjsmin")
-
 import shutil
 import os
-
-try:
-    from css_html_js_minify import process_single_html_file, process_single_css_file
-except ImportError:
-    env.Execute("$PYTHONEXE -m pip install css-html-js-minify")
-try:
-    import rjsmin
-except ImportError:
-    env.Execute("$PYTHONEXE -m pip install rjsmin")
+import rjsmin
+from css_html_js_minify import process_single_html_file, process_single_css_file
 
 
-config_path = "lib/config/config.h"
+config_path = "components/config/config.h"
 
 config_present = os.path.isfile(config_path)
-dir_present = os.path.isdir('lib/config')
+dir_present = os.path.isdir('components/config')
 minified_data = 'data_minified'
 regular_data = 'data'
 
@@ -28,7 +18,7 @@ if config_present:
 else:
     print("Config file not found, using config_default.h ...")
     if not dir_present:
-        os.mkdir('lib/config')
+        os.mkdir('components/config')
         shutil.copy2('config_default.h', config_path)
     else:
         shutil.copy2('config_default.h', config_path)
@@ -84,7 +74,7 @@ print(a)
 
 word = 'static const char *sites'
 sitesLine = -1
-with open(r'lib/config/config.h', 'r') as fp:
+with open(r'components/config/config.h', 'r') as fp:
     lines = fp.readlines()
     for line in lines:
         if line.find(word) != -1:

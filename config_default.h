@@ -8,16 +8,7 @@ static const char *TAG = "SolarCharger";
 #define DHCP true
 #define PAGE_BUFF 2048 //safe value
 #if (DHCP==false)
-    #define IP_1 192
-    #define IP_2 168
-    #define IP_3 0
-    #define IP_4 116
-    #define GATEWAY_1 192
-    #define GATEWAY_2 168
-    #define GATEWAY_3 0
-    #define GATEWAY_4 1
-    #define MASK_1 255
-    #define MASK_2 255
-    #define MASK_3 255
-    #define MASK_4 0
+    #define IP "0.0.0.0"
+    #define MASK "0.0.0.0"
+    #define GATEWAY "0.0.0.0"
 #endif
