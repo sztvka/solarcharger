@@ -1,3 +1,4 @@
+#include <sys/cdefs.h>
 #include <stdio.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -7,7 +8,7 @@
 #include <assert.h>
 #include <wifi.h>
 #include <iot_servo.h>
-#include "driver/adc.h"
+#include "driver/adc.h" //deprecated change in the future
 #include "esp_adc_cal.h"
 
 
@@ -16,19 +17,11 @@
 #define I2C_SCL 22
 #define I2C_SDA 21
 
-//0 bottom left
-//1 top left
-//2 top right
-//3 bottom right 
 
-
-//w prawo plus w gore plus
-
-
-// LDR1 33  bottom left      lewy gorny
-// LDR2 32  top left         prawy gorny
-// LDR3 35  top right        lewy dolny
-// LDR4 34  bottom right     prawy dolny
+// LDR1 33  top left
+// LDR2 32  top right
+// LDR3 35  bottom left
+// LDR4 34  bottom right
 
 
 #define LDR1 ADC_CHANNEL_4
@@ -37,7 +30,6 @@
 #define LDR4 ADC_CHANNEL_7
 
 #define ADC_SAMPLE_SIZE 64
-//adc1 channel 4 5 6 7
 
 static const adc_bits_width_t width = ADC_WIDTH_BIT_12;
 static esp_adc_cal_characteristics_t *ldr_adc_chars;
@@ -109,15 +101,6 @@ void ina_measure(void *addr)
 }
 
 
-void servo_loop(){
-    while(true){
-        for(int i = 0; i<90; i++){
-            iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 0, i);
-            iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 1, i);
-            vTaskDelay(pdMS_TO_TICKS(100));
-        }
-    }
-}
 
 //servo 1 prawo lewo
 //sevo 2 gora dol
@@ -129,12 +112,12 @@ void adjustServos(int diff_vert, int diff_hor){
     if(abs(diff_vert)>=LDR_DIFF_MOVE_TRESHOLD){
         if(diff_vert>0 && servo2_angle>89) servo2_angle-=2;
         else if(diff_vert<0 && servo2_angle<179) servo2_angle+=2;
-        iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 1, servo2_angle);
+        iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 1, (float)servo2_angle);
     }
     if(abs(diff_hor)>=LDR_DIFF_MOVE_TRESHOLD){
         if(diff_hor>0 && servo1_angle<179) servo1_angle+=2;
         else if(diff_hor<0 && servo1_angle>1) servo1_angle-=2;
-        iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 0, servo1_angle);
+        iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 0, (float)servo1_angle);
     }
 }
 
@@ -182,10 +165,10 @@ void ldr_setup(){
     print_char_val_type(val_type); 
 }
 
-void ldr_read(){
+_Noreturn void ldr_read(){
     //has to be moved here due to api not being thread-safe
-    iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 0, servo1_angle);
-    iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 1, servo2_angle);
+    iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 0, (float)servo1_angle);
+    iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 1, (float)servo2_angle);
     while(1){
         uint32_t ldr_raw_reading[4] = {0};
         uint32_t ldr_voltage[4] = {0};
@@ -202,10 +185,10 @@ void ldr_read(){
         };
 
 
-    int avg_top = (ldr_voltage[0] + ldr_voltage[1]) / 2;
-    int avg_bot = (ldr_voltage[2] + ldr_voltage[3]) / 2;
-    int avg_left = (ldr_voltage[0] + ldr_voltage[2]) / 2;
-    int avg_right = (ldr_voltage[1] + ldr_voltage[3]) / 2;
+    int avg_top = (int)(ldr_voltage[0] + ldr_voltage[1]) / 2;
+    int avg_bot = (int)(ldr_voltage[2] + ldr_voltage[3]) / 2;
+    int avg_left = (int)(ldr_voltage[0] + ldr_voltage[2]) / 2;
+    int avg_right = (int)(ldr_voltage[1] + ldr_voltage[3]) / 2;
 
 
 
