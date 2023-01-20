@@ -46,3 +46,16 @@ The code is written in ESP-IDF with FreeRTOS and is designed to run on an ESP32.
 5. Run the `compile_extras.py` script to setup the web UI (this will minify web files and set your config for compiling)
 6. Run `idf.py build` to compile the project
 7. Flash the device with `idf.py -p (PORT) flash`
+
+
+
+## Extra media
+![img2](img/photo2.jpg?raw=true "Photo")  
+![img3](img/photo3.jpg?raw=true "Photo")
+
+https://github.com/sztvka/solarcharger/raw/master/img/video.mp4
+
+## License
+
+This project is licensed under the Creative Comms Attribution Share Alike 4.0 International - see the [LICENSE](LICENSE) file for details  
+![cc](https://upload.wikimedia.org/wikipedia/commons/e/e5/CC_BY-SA_icon.svg)
