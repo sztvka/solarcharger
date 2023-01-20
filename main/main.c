@@ -166,7 +166,6 @@ void ldr_setup(){
 }
 
 _Noreturn void ldr_read(){
-    //has to be moved here due to api not being thread-safe
     iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 0, (float)servo1_angle);
     iot_servo_write_angle(LEDC_LOW_SPEED_MODE, 1, (float)servo2_angle);
     while(1){
@@ -207,19 +206,13 @@ void app_main()
 {
     ESP_ERROR_CHECK(i2cdev_init());
 
-    
     wifi_init();
     setINA219_1(0.1,0.1,0.1);
     setINA219_2(0.2,0.2,0.2);
     xTaskCreate(ina_measure, "INA219_1", configMINIMAL_STACK_SIZE * 8, (void*)&INA219_1_ADDR, 5, NULL);
     xTaskCreate(ina_measure, "INA219_2", configMINIMAL_STACK_SIZE * 8, (void*)&INA219_2_ADDR, 5, NULL);
     iot_servo_init(LEDC_LOW_SPEED_MODE, &servo_cfg);
-//    xTaskCreate(servo_loop, "servo", configMINIMAL_STACK_SIZE*4, NULL, 4, NULL);
     ldr_setup();
-
     xTaskCreate(ldr_read, "ADC", configMINIMAL_STACK_SIZE*8, NULL, 4, NULL);
-
-  //  xTaskCreate(servo, "ServoHandle", configMINIMAL_STACK_SIZE * 5, NULL, 4, NULL);
-   // printf("Free memory left: %u", (unsigned int)esp_get_free_heap_size());
 
 }
