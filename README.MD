@@ -59,5 +59,5 @@ https://user-images.githubusercontent.com/47701797/213793889-40177bec-c784-479d-
 
 ## License
 
-This project is licensed under the Creative Comms Attribution Share Alike 4.0 International - see the [LICENSE](LICENSE) file for details  
+This project is licensed under the Creative Commons Attribution Share Alike 4.0 International - see the [LICENSE](LICENSE) file for details  
 ![cc](https://upload.wikimedia.org/wikipedia/commons/e/e5/CC_BY-SA_icon.svg)
