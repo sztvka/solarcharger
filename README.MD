@@ -50,9 +50,9 @@ The code is written in ESP-IDF with FreeRTOS and is designed to run on an ESP32.
 
 
 ## Extra media
-![img2](img/photo2.jpg?raw=true "Photo")  
-![img3](img/photo3.jpg?raw=true "Photo")
 
+
+![photo](https://user-images.githubusercontent.com/47701797/213795986-06cec554-1c33-434d-908f-fc9d81b5e190.jpg)
 
 https://user-images.githubusercontent.com/47701797/213793889-40177bec-c784-479d-9bc1-420ded0e9b07.mp4
 
