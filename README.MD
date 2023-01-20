@@ -53,7 +53,9 @@ The code is written in ESP-IDF with FreeRTOS and is designed to run on an ESP32.
 ![img2](img/photo2.jpg?raw=true "Photo")  
 ![img3](img/photo3.jpg?raw=true "Photo")
 
-https://github.com/sztvka/solarcharger/raw/master/img/video.mp4
+
+https://user-images.githubusercontent.com/47701797/213793889-40177bec-c784-479d-9bc1-420ded0e9b07.mp4
+
 
 ## License
 
