@@ -29,7 +29,7 @@ Required materials for assembly:
 Everything is placed onto a custom pcb. For more details refer to schematics and kicad files in the repository. This design uses a 3W solar panel.
 
 ## Software
-
+The code is written in ESP-IDF with FreeRTOS and is designed to run on an ESP32. 
 
 ## Compiling
 
@@ -38,10 +38,9 @@ Everything is placed onto a custom pcb. For more details refer to schematics and
  - Python interpreter
 
 #### Steps
-1. Clone the repository  
-`git clone https://github.com/sztvka/solarcharger.git`
+1. Clone the repository `git clone https://github.com/sztvka/solarcharger.git`
 2. Make sure your ESP-IDF path is set correctly and `idf.py` is resolvable
-3. Install the required python packages  `pip install rjsmin css_html_js_minify`
+3. Install the required python packages `pip install rjsmin css_html_js_minify`
 4. Configure your install in `config_default.h` file
 5. Run the `compile_extras.py` script to setup the web UI (this will minify web files and set your config for compiling)
 6. Run `idf.py build` to compile the project
