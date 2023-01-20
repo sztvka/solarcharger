@@ -3,8 +3,12 @@ name: ESP-IDF
 on:
   push:
     branches: [ "master", "esp-idf"]
+    paths-ignore:
+      - '**/README.MD'
+      - '**/img/**'
   pull_request:
     branches: [ "master" ]
+
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
