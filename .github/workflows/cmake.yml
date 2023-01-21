@@ -6,6 +6,8 @@ on:
     paths-ignore:
       - '**/README.MD'
       - '**/img/**'
+      - '**/electronics_hardware/**'
+      - '**/3d_models/**'
   pull_request:
     branches: [ "master" ]
 
