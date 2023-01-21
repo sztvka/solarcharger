@@ -17,6 +17,7 @@ Required materials for assembly:
 - M4x10mm Screws
 - M4x20mm Screws
 - M3x6mm Screws
+- 6001 Bearing (I recommend opening it up and removing the grease inside to decrease friction)
 - M3 standoffs (Optional, extra space under the pcb allows cable management)
 - M6x100mm threaded rod with two M6 nuts
 - MG-996R Servo (pan)
