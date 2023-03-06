@@ -3,8 +3,8 @@
 This project is my first shot at programming real-time systems featuring multiple tasks. I wanted to create a dual axis solar tracker that's reliable in terms of hardware and software in the field where most of the similar projects run on a breadboard with an Arduino.
 The device is able to:
 - Track the sun in two axis
-- Charge a Lithion-Ion Battery with current limit and overvoltage protection
-- Display a web UI displaying the current status of the device
+- Charge a Lithium-Ion Battery with current limit and overvoltage protection
+- Display a web UI with real-time status of the device
 ![photo1](img/photo1.jpg?raw=true "Photo")
 ![webUI](img/scr_1.jpg?raw=true "Web UI")
 
